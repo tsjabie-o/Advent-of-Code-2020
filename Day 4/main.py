@@ -1,3 +1,4 @@
+import re
 passports = list()
 
 with open("./Day 4/data.txt", "r") as inpt:
@@ -26,24 +27,46 @@ for passport in passports:
     if amount == 8 or (cid == False and amount == 7):
         validPassports.append(passport)
 
-print(len(validPassports))
+print("Valid passports, part 1: {}".format(len(validPassports)))
 
 validPassports2 = list()
 
 for passport in validPassports:
-    if (
+    if not (
+        # Years
         int(passport["byr"]) >= 1920 and int(passport["byr"]) <= 2002
         and int(passport["iyr"]) >= 2010 and int(passport["iyr"]) <= 2020
         and int(passport["eyr"]) >= 2020 and int(passport["eyr"]) <= 2030
+    ):
+        continue
 
+    # Regular expressions checks
+    
+    # Height
+    unit = passport["hgt"][-2:]
+    if unit == "cm":
+        height = int(passport["hgt"][:-2])
+        if not (height >= 150 and height <= 193):
+                    continue
+    elif unit == "in":
+        height = int(passport["hgt"][:-2])
+        if not (height >= 59 and height <= 76):
+            continue
+    else:
+        continue
+    
+    # Hair colour
+    if not re.search(r"#[a-f0-9]{6}", passport["hcl"]):
+        continue
 
+    # Eye colour
+    if not passport["ecl"] in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]:
+        continue
 
-        and passport["hgt"][-2:] == "cm" or passport["hgt"][-2:] == "in"
+    # Passport ID
+    if not re.search(r"^[0-9]{9}$", passport["pid"]):
+        continue
 
+    validPassports2.append(passport)
 
-
-        and int(passport["iyr"]) >= 2010 and int(passport["iyr"]) <= 2020
-        and int(passport["iyr"]) >= 2010 and int(passport["iyr"]) <= 2020
-        and int(passport["iyr"]) >= 2010 and int(passport["iyr"]) <= 2020
-        and int(passport["iyr"]) >= 2010 and int(passport["iyr"]) <= 2020
-    )
+print("Valid passports, part 1: {}".format(len(validPassports2)))
