@@ -1,3 +1,5 @@
+from queue import Queue
+
 raw_data = list()
 
 with open("data.txt") as data:
@@ -32,6 +34,29 @@ class SuitcaseTree():
         self.suitcases[parentcolour].AddChild(childcolour, amount)
         self.suitcases[childcolour].AddParent(parentcolour)
 
+    def FindAllParents(self, colour):
+        foundparents = list()
+        parentsToCheck = Queue()
+        currentparents = self.suitcases[colour].parents
+        if type(currentparents) is list:
+            for parent in currentparents:
+                parentsToCheck.put(parent)
+        else:
+            parentsToCheck.put(currentparents)
+
+        while parentsToCheck.qsize() > 0:
+            current = parentsToCheck.get()
+            if current not in foundparents: foundparents.append(current)
+            currentparents = self.suitcases[current].parents
+            if type(currentparents) is list:
+                for parent in currentparents:
+                    parentsToCheck.put(parent)
+            else:
+                parentsToCheck.put(currentparents)
+        return foundparents
+
+
+
 
 suitcasetree = SuitcaseTree()
 
@@ -41,9 +66,11 @@ for line in raw_data:
 
     childinfo = line.split("contain")[1].split(",")
     for child in childinfo:
+        if "other" in child:
+            continue
         amount = child.split()[0]
         childcolour = " ".join(child.split()[1:3])
         suitcasetree.AddChild(parentcolour, childcolour, amount)
 
 
-print(suitcasetree.suitcases["clear purple"].children)
+print(len(suitcasetree.FindAllParents("shiny gold")))
